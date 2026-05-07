@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Perla Tchimou</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(-45deg, #fff5f7, #ffebee, #fce4ec, #fff5f7);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .cursive {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        .step {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            text-align: center;
+            padding: 2rem;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .step.active {
+            display: flex;
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* PASSPORT PHOTO STYLING */
+        .floating-photo {
+            position: absolute;
+            bottom: -120px;
+            width: 75px;  
+            height: 100px; 
+            object-fit: cover;
+            border-radius: 4px;
+            border: 3px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: -1;
+            pointer-events: none;
+            animation: floatUp 5s linear forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(-5deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-120vh) rotate(10deg); opacity: 0; }
+        }
+
+        #yesBtn { transition: all 0.2s ease-out; z-index: 10; }
+        #noBtn { transition: all 0.2s ease; }
+        
+        .fade-in {
+            animation: fadeIn 1.5s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" src="feel.mp3" loop></audio>
+
+    <div id="step0" class="step active fade-in">
+        <div class="text-center">
+            <h1 class="text-7xl cursive text-pink-500 mb-4 floating">Welcome Babyyyyy 😽😽❤️</h1>
+            <p class="text-pink-300 text-xl mb-10">I have something for you...</p>
+            <button onclick="nextStep(1)" class="bg-white border-2 border-pink-400 text-pink-500 font-bold py-4 px-14 rounded-full shadow-lg hover:bg-pink-50 transition-all text-2xl transform hover:scale-110">
+                Open ❤️
+            </button>
+        </div>
+    </div>
+
+    <div id="step1" class="step">
+        <div class="max-w-md bg-white p-8 rounded-3xl shadow-xl border-t-4 border-pink-400">
+            <h1 class="text-4xl cursive text-pink-600 mb-6">Perla Tchimou...</h1>
+            <p class="text-gray-700 text-lg leading-relaxed mb-8">
+                I really like you. I wanted to take a moment to tell you how special you are to me. 
+                Every moment we spend together makes me realize how much I appreciate having you in my life. 
+                You're amazing, and there's something I've been wanting to ask you...
+            </p>
+            <button onclick="nextStep(2)" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transform hover:scale-105 transition-all">
+                Next ❤️
+            </button>
+        </div>
+    </div>
+
+    <div id="step2" class="step">
+        <div class="heart floating mb-4 text-5xl">❤️</div>
+        <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-12 px-4">Will you be my girlfriend?</h2>
+        
+        <div class="flex flex-wrap justify-center items-center gap-6" id="buttonContainer">
+            <button id="yesBtn" onclick="celebrate()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-12 rounded-full shadow-xl text-xl">
+                YES
+            </button>
+            <button id="noBtn" onclick="makeYesBigger()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-12 rounded-full shadow-xl text-xl">
+                No
+            </button>
+        </div>
+    </div>
+
+    <div id="step3" class="step">
+        <div class="bg-white p-10 rounded-3xl shadow-2xl border-4 border-pink-500 max-w-lg">
+            <h1 class="text-5xl cursive text-pink-600 mb-6">Yay! ❤️</h1>
+            <p class="text-2xl font-bold text-gray-800 mb-4">I'm the luckiest guy aliveeee!</p>
+            <p class="text-gray-600 italic">I promise to make you the happiest girl in the world.</p>
+        </div>
+    </div>
+
+    <script>
+        let yesScale = 1;
+        let noClicks = 0;
+        let photoInterval;
+
+        function nextStep(step) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+            
+            const music = document.getElementById('bgMusic');
+
+            if (step === 1) {
+                music.play().catch(e => console.log("Audio play failed"));
+            }
+
+            if(step === 2) {
+                photoInterval = setInterval(() => {
+                    createFloatingPhoto();
+                    setTimeout(createFloatingPhoto, 400); 
+                    setTimeout(createFloatingPhoto, 800);
+                }, 2000); 
+            }
+
+            if(step === 3) {
+                clearInterval(photoInterval);
+            }
+        }
+
+       function createFloatingPhoto() {
+    // Array updated with all images from your folder (1 through 28)
+    const images = [];
+    for (let i = 1; i <= 42; i++) {
+    images.push(`Perla ${i}.jpeg`);
+    images.push(`Perla ${i}.jpg`)
+    }
+    
+    // Adding videos 
+    const videos = ['Perla 12.mp4', 'Perla 13.mp4', 'Perla 30.mp4', 'Perla 32.mp4','Perla 36.mp4','Perla 37.mp4','Perla 38.mp4','Perla 40.mp4','Perla 41.mp4','Perla 42.mp4'   ];
+    
+    const isVideo = Math.random() < 0.4;
+    const element = document.createElement(isVideo ? 'video' : 'img');
+    
+    if (isVideo) {
+        element.src = videos[Math.floor(Math.random() * videos.length)];
+        element.autoplay = true;
+        element.muted = true;
+        element.loop = true;
+    } else {
+        element.src = images[Math.floor(Math.random() * images.length)];
+    }
+    
+    element.className = 'floating-photo'; 
+    element.style.left = Math.random() * 90 + "vw"; 
+
+    element.onerror = function() {
+    this.style.display = 'none'; // If the image is broken, just hide it!
+};
+    
+    const duration = Math.random() * 2 + 4; 
+    element.style.animationDuration = duration + "s";
+    
+    document.body.appendChild(element);
+    setTimeout(() => { element.remove(); }, duration * 1000);
+}
+
+        function makeYesBigger() {
+            const yesBtn = document.getElementById('yesBtn');
+            const noBtn = document.getElementById('noBtn');
+            noClicks++;
+            yesScale += 0.5; 
+            yesBtn.style.transform = `scale(${yesScale})`;
+            const phrases = ["Are you sure?", "Really??", "Think again! ❤️", "Try the green one!"];
+            if (noClicks <= phrases.length) noBtn.innerText = phrases[noClicks - 1];
+        }
+
+        function celebrate() {
+            nextStep(3);
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            setInterval(() => {
+                confetti({ particleCount: 40, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 40, angle: 120, spread: 55, origin: { x: 1 } });
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
